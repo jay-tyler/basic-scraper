@@ -1,0 +1,26 @@
+Search for city='Seattle', start_date='01/01/2015', end_date='07/01/2015'
+
+http://info.kingcounty.gov/health/ehs/foodsafety/inspections/Results.aspx?Output=W&Business_Name=&Business_Address=&Longitude=&Latitude=&City=Seattle&Zip_Code=&Inspection_Type=All&Inspection_Start=01/01/2015&Inspection_End=07/01/2015&Inspection_Closed_Business=A&Violation_Points=&Violation_Red_Points=&Violation_Descr=&Fuzzy_Search=N&Sort=B
+
+
+Output=W
+Business_Name=
+Business_Address=
+Longitude=
+Latitude=
+City=Seattle
+Zip_Code=
+Inspection_Type=All
+Inspection_Start=01/01/2015
+Inspection_End=07/01/2015
+Inspection_Closed_Business=A
+Violation_Points=
+Violation_Red_Points=
+Violation_Descr=
+Fuzzy_Search=N
+Sort=B
+
+
+base_uri = "http://info.kingcounty.gov/health/ehs/foodsafety/inspections/Results.aspx?"
+
+Output=W&Business_Name=&Business_Address=&Longitude=&Latitude=&City=Seattle&Zip_Code=&Inspection_Type=All&Inspection_Start=01/01/2015&Inspection_End=07/01/2015&Inspection_Closed_Business=A&Violation_Points=&Violation_Red_Points=&Violation_Descr=&Fuzzy_Search=N&Sort=B
