@@ -15,10 +15,10 @@ QUERY_PARAMS = {
     'Longitude': '',
     'Latitude': '',
     'City': '',
-    'Zip_Code': '',
+    'Zip_Code': 98109,
     'Inspection_Type': 'All',
-    'Inspection_Start': '',
-    'Inspection_End': '',
+    'Inspection_Start': '01/01/2013',
+    'Inspection_End': '07/06/2015',
     'Inspection_Closed_Business': 'A',
     'Violation_Points': '',
     'Violation_Red_Points': '',
@@ -50,7 +50,7 @@ def parse_source(body, encoding='utf-8'):
 
 
 def extract_data_listings(html):
-    id_finder = re.compile(r'PR[\d]+~')
+    id_finder = re.compile(r'PR[\d]+')
     return html.find_all('div', id=id_finder)
 
 
@@ -58,7 +58,10 @@ def has_two_tds(elem):
     if elem.name == 'tr':
         #  Test if tr has exactly two td children
         return len(elem.find_all('td', recursive=False)) == 2
-
+    # is_tr = elem.name == 'tr'
+    # td_children = elem.find_all('td', recursive=False)
+    # has_two = len(td_children) == 2
+    # return is_tr and has_two
 
 if __name__ == "__main__":
     kwargs = {
@@ -73,7 +76,14 @@ if __name__ == "__main__":
         content, encoding = get_inspection_page(**kwargs)
     doc = parse_source(content, encoding)
     listings = extract_data_listings(doc)
-    for listing in listings:
+    # print listings
+    # for listing in listings:
+    #     metadata_rows = listing.find('tbody').find_all(
+    #         has_two_tds, recursive=False)
+    # print len(metadata_rows)
+    # 
+    for listing in listings:  # <- add this stuff here.
         metadata_rows = listing.find('tbody').find_all(
-            has_two_tds, recursive=False)
-    print len(metadata_rows)
+            has_two_tds, recursive=False
+        )
+        print len(metadata_rows)
