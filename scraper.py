@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 import requests
 from bs4 import BeautifulSoup
+import json
+import geocoder
 import sys
 
 
@@ -74,7 +76,7 @@ def clean_data(td):
 
 
 def extract_restaurant_metadata(elem):
-    metadata_rows = listing.find('tbody').find_all(
+    metadata_rows = elem.find('tbody').find_all(
         has_two_tds, recursive=False
     )
     data, label = {}, ""
@@ -116,19 +118,57 @@ def extract_score_data(elem):
         data["Average Score"] = data["Total Inspections"] / float(samples)
     return data
 
-if __name__ == "__main__":
+
+def generate_results(test=False, count=10):
     kwargs = {
         'Inspection_Start': '2/1/2013',
         'Inspection_End': '2/1/2015',
         'Zip_Code': '98109'
     }
-    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+    if test:
         html, encoding = load_inspection_page('inspection_page.html')
     else:
         html, encoding = get_inspection_page(**kwargs)
     doc = parse_source(html, encoding)
     listings = extract_data_listings(doc)
-    for listing in listings[:5]:
+    for listing in listings[:count]:
         metadata = extract_restaurant_metadata(listing)
         score_data = extract_score_data(listing)
-        print score_data
+        metadata.update(score_data)
+        yield metadata
+
+
+def get_geojson(result):
+    address = " ".join(result.get('Address', ''))
+    if not address:
+        return None
+    coded = geocoder.google(address)
+    geojson = coded.geojson
+    data = {}
+    use_keys = ('Business Name', 'Average Score',
+                'Total Inspections', 'High Score', 'Address',)
+
+    for key, val in result.items():
+        if key not in use_keys:
+            continue
+        if isinstance(val, list):
+            val = " ".join(val)
+        data[key] = val
+    new_address = geojson['properties'].get('address')
+    if new_address:
+        data["Address"] = new_address
+    geojson['properties'] = data
+    return geojson
+
+
+if __name__ == "__main__":
+    from pprint import pprint
+    test = len(sys.argv) > 1 and sys.argv[1] == 'test'
+    total_result = {'type': 'FeatureCollection', 'features': []}
+    for result in generate_results(test):
+        geo_result = get_geojson(result)
+        pprint(geo_result)
+        if geo_result is not None:
+            total_result['features'].append(geo_result)
+    with open('my_map.json', 'w') as fh:
+        json.dump(total_result, fh)
